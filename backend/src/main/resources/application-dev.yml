@@ -1,0 +1,19 @@
+spring:
+  datasource:
+    url: jdbc:mariadb://localhost:3306/spukhaus
+    username: spukhaus
+    password: spukhaus
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+
+minio:
+  url: http://localhost:9000
+  access-key: spukhaus
+  secret-key: spukhaus123
+  bucket: spukhaus-designs
+
+logging:
+  level:
+    de.spukhaus.backend: DEBUG
