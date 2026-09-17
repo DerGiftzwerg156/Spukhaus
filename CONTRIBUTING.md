@@ -24,10 +24,11 @@ Spukhaus/
    ```bash
    docker compose -f Tools/Docker/docker-compose.yml up -d
    ```
-2. Backend starten (Profil `dev` ist Standard):
+2. Backend starten (Profil `dev` ist Standard). Beim allerersten Start muss ein initiales
+   TechAdmin-Passwort gesetzt werden, sonst kann sich niemand anmelden:
    ```bash
    cd backend
-   ./mvnw spring-boot:run
+   BOOTSTRAP_TECH_ADMIN_PASSWORD='<ein-sicheres-passwort>' ./mvnw spring-boot:run
    ```
 3. Frontend starten:
    ```bash

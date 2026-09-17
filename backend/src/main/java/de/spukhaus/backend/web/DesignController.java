@@ -12,6 +12,7 @@ import de.spukhaus.backend.web.dto.DesignDetailDto;
 import de.spukhaus.backend.web.dto.DesignImageDto;
 import de.spukhaus.backend.web.dto.DesignSummaryDto;
 import de.spukhaus.backend.web.dto.DesignVersionDto;
+import de.spukhaus.backend.web.dto.MyDesignSummaryDto;
 import de.spukhaus.backend.web.dto.PageResponse;
 import de.spukhaus.backend.web.dto.RejectRequest;
 import de.spukhaus.backend.web.dto.UpdateDesignRequest;
@@ -56,8 +57,10 @@ public class DesignController {
     }
 
     @GetMapping("/mine")
-    public List<DesignSummaryDto> mine(@AuthenticationPrincipal SpukhausUserPrincipal principal) {
-        return designService.listOwnedBy(principal.getUser()).stream().map(DesignSummaryDto::from).toList();
+    public List<MyDesignSummaryDto> mine(@AuthenticationPrincipal SpukhausUserPrincipal principal) {
+        return designService.listOwnedBy(principal.getUser()).stream()
+                .map(d -> MyDesignSummaryDto.from(d, designService.findInFlightVersion(d)))
+                .toList();
     }
 
     @GetMapping("/review-queue")

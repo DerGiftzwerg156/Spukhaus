@@ -7,6 +7,7 @@ import java.util.List;
 
 public record DesignVersionDto(
         Long id,
+        Long designId,
         int versionNumber,
         String name,
         String description,
@@ -22,6 +23,7 @@ public record DesignVersionDto(
     public static DesignVersionDto from(DesignVersion version) {
         return new DesignVersionDto(
                 version.getId(),
+                version.getDesign().getId(),
                 version.getVersionNumber(),
                 version.getName(),
                 version.getDescription(),

@@ -11,7 +11,11 @@ spring:
   jpa:
     hibernate:
       ddl-auto: validate
-    open-in-view: false
+    # Entities werden über mehrere Service-Aufrufe hinweg innerhalb einer Anfrage weitergereicht
+    # (z.B. Controller lädt ein Design und ruft danach mehrere Service-Methoden darauf auf).
+    # open-in-view hält den Persistence-Context für die gesamte Anfrage offen, damit das
+    # funktioniert, ohne dass Entities zwischen den Aufrufen detached werden.
+    open-in-view: true
   servlet:
     multipart:
       max-file-size: -1

@@ -1,1 +1,31 @@
+@import url('https://fonts.googleapis.com/css2?family=Contrail+One&family=Inter:wght@400;500;600;700&display=swap');
 @import "tailwindcss";
+
+@theme {
+  --font-display: 'Contrail One', 'Inter', sans-serif;
+  --font-sans: 'Inter', system-ui, sans-serif;
+
+  --color-spuk-black: #0c0a0b;
+  --color-spuk-charcoal: #171316;
+  --color-spuk-charcoal-light: #241e21;
+  --color-spuk-fog: #d8d0d2;
+  --color-spuk-bone: #f4efe9;
+  --color-spuk-red: #6b0505;
+  --color-spuk-red-bright: #a4130f;
+  --color-spuk-red-glow: #d7261c;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  background-color: var(--color-spuk-black);
+  color: var(--color-spuk-bone);
+  font-family: var(--font-sans);
+}
+
+h1, h2, h3, .font-display {
+  font-family: var(--font-display);
+  letter-spacing: 0.02em;
+}

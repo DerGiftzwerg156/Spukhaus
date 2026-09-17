@@ -1,0 +1,26 @@
+<div>
+  <h1 class="mb-6 font-display text-2xl text-spuk-bone">Zu prüfende Designs</h1>
+
+  @if (queue().length === 0) {
+    <p class="rounded border border-dashed border-spuk-charcoal-light p-8 text-center text-spuk-fog">
+      Aktuell warten keine Designs auf Prüfung.
+    </p>
+  } @else {
+    <div class="flex flex-col gap-3">
+      @for (version of queue(); track version.id) {
+        <a
+          [routerLink]="['/designs', version.designId]"
+          class="flex items-center gap-4 rounded-lg border border-spuk-charcoal-light bg-spuk-charcoal p-3 transition hover:border-spuk-red-bright"
+        >
+          <div class="h-16 w-16 shrink-0 overflow-hidden rounded">
+            <app-secure-image [src]="previewUrl(version)" [alt]="version.name" imgClass="h-full w-full object-cover" />
+          </div>
+          <div class="min-w-0 flex-1">
+            <p class="truncate font-display text-spuk-bone">{{ version.name }}</p>
+            <p class="truncate text-sm text-spuk-fog">Version {{ version.versionNumber }} · eingereicht am {{ version.submittedAt | date: 'short' }}</p>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</div>

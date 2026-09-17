@@ -1,10 +1,84 @@
-<div class="flex min-h-screen flex-col bg-gray-50">
-  <header class="flex items-center gap-2 bg-gray-900 px-4 py-3 text-white">
-    <svg lucideGhost class="h-6 w-6"></svg>
-    <span class="text-lg font-semibold">{{ title }}</span>
-  </header>
+<div class="flex min-h-screen flex-col bg-spuk-black text-spuk-bone">
+  @if (showChrome) {
+    <header class="sticky top-0 z-20 border-b border-spuk-charcoal-light bg-spuk-charcoal/95 backdrop-blur">
+      <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
+        <a routerLink="/designs" class="flex items-center gap-2" (click)="closeMenu()">
+          <svg lucideGhost class="h-7 w-7 text-spuk-red-bright"></svg>
+          <span class="font-display text-lg tracking-wide">{{ title }}</span>
+        </a>
 
-  <main class="flex-1 p-4">
+        <nav class="hidden items-center gap-1 md:flex">
+          <a
+            routerLink="/designs"
+            routerLinkActive="bg-spuk-charcoal-light text-spuk-bone"
+            [routerLinkActiveOptions]="{ exact: true }"
+            class="rounded px-3 py-2 text-sm text-spuk-fog transition hover:bg-spuk-charcoal-light hover:text-spuk-bone"
+            >Galerie</a
+          >
+          @if (authService.isAtLeastCreator()) {
+            <a
+              routerLink="/designs/mine"
+              routerLinkActive="bg-spuk-charcoal-light text-spuk-bone"
+              class="rounded px-3 py-2 text-sm text-spuk-fog transition hover:bg-spuk-charcoal-light hover:text-spuk-bone"
+              >Meine Designs</a
+            >
+          }
+          @if (authService.isAtLeastAdmin()) {
+            <a
+              routerLink="/admin/review"
+              routerLinkActive="bg-spuk-charcoal-light text-spuk-bone"
+              class="rounded px-3 py-2 text-sm text-spuk-fog transition hover:bg-spuk-charcoal-light hover:text-spuk-bone"
+              >Prüfungen</a
+            >
+            <a
+              routerLink="/admin/users"
+              routerLinkActive="bg-spuk-charcoal-light text-spuk-bone"
+              class="rounded px-3 py-2 text-sm text-spuk-fog transition hover:bg-spuk-charcoal-light hover:text-spuk-bone"
+              >Benutzer</a
+            >
+          }
+        </nav>
+
+        <div class="hidden items-center gap-3 md:flex">
+          @if (authService.currentUser(); as user) {
+            <span class="text-sm text-spuk-fog">{{ user.displayName }}</span>
+          }
+          <button
+            (click)="logout()"
+            class="rounded border border-spuk-charcoal-light px-3 py-1.5 text-sm text-spuk-fog transition hover:border-spuk-red-bright hover:text-spuk-bone"
+          >
+            Abmelden
+          </button>
+        </div>
+
+        <button class="p-2 md:hidden" (click)="toggleMenu()" aria-label="Menü umschalten">
+          @if (menuOpen()) {
+            <svg lucideX class="h-6 w-6"></svg>
+          } @else {
+            <svg lucideMenu class="h-6 w-6"></svg>
+          }
+        </button>
+      </div>
+
+      @if (menuOpen()) {
+        <nav class="flex flex-col gap-1 border-t border-spuk-charcoal-light px-4 py-3 md:hidden">
+          <a routerLink="/designs" (click)="closeMenu()" class="rounded px-3 py-2 text-spuk-fog hover:bg-spuk-charcoal-light">Galerie</a>
+          @if (authService.isAtLeastCreator()) {
+            <a routerLink="/designs/mine" (click)="closeMenu()" class="rounded px-3 py-2 text-spuk-fog hover:bg-spuk-charcoal-light">Meine Designs</a>
+          }
+          @if (authService.isAtLeastAdmin()) {
+            <a routerLink="/admin/review" (click)="closeMenu()" class="rounded px-3 py-2 text-spuk-fog hover:bg-spuk-charcoal-light">Prüfungen</a>
+            <a routerLink="/admin/users" (click)="closeMenu()" class="rounded px-3 py-2 text-spuk-fog hover:bg-spuk-charcoal-light">Benutzer</a>
+          }
+          <button (click)="logout()" class="mt-2 rounded border border-spuk-charcoal-light px-3 py-2 text-left text-spuk-fog">
+            Abmelden ({{ authService.currentUser()?.displayName }})
+          </button>
+        </nav>
+      }
+    </header>
+  }
+
+  <main class="mx-auto w-full max-w-6xl flex-1 px-4 py-6">
     <router-outlet></router-outlet>
   </main>
 </div>

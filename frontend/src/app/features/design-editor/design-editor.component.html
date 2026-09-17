@@ -1,0 +1,125 @@
+@if (loading()) {
+  <p class="text-spuk-fog">Lädt…</p>
+} @else {
+  <div class="mx-auto flex max-w-2xl flex-col gap-6">
+    <h1 class="font-display text-2xl text-spuk-bone">
+      {{ isCreateMode() ? 'Neues Design' : 'Design bearbeiten' }}
+    </h1>
+
+    @if (version()?.status === 'DRAFT' && version()?.rejectionComment) {
+      <div class="rounded border border-spuk-red/60 bg-spuk-charcoal p-3 text-sm">
+        <p class="font-medium text-spuk-red-glow">Zuletzt vom Admin abgelehnt:</p>
+        <p class="text-spuk-fog">{{ version()?.rejectionComment }}</p>
+      </div>
+    }
+
+    <div class="flex flex-col gap-4">
+      <div>
+        <label class="mb-1 block text-sm text-spuk-fog" for="name">Name</label>
+        <input
+          id="name"
+          type="text"
+          class="w-full rounded border border-spuk-charcoal-light bg-spuk-charcoal px-3 py-2 text-spuk-bone outline-none focus:border-spuk-red-bright"
+          [ngModel]="name()"
+          (ngModelChange)="name.set($event)"
+        />
+      </div>
+      <div>
+        <label class="mb-1 block text-sm text-spuk-fog" for="description">Beschreibung</label>
+        <textarea
+          id="description"
+          rows="5"
+          class="w-full rounded border border-spuk-charcoal-light bg-spuk-charcoal px-3 py-2 text-spuk-bone outline-none focus:border-spuk-red-bright"
+          [ngModel]="description()"
+          (ngModelChange)="description.set($event)"
+        ></textarea>
+      </div>
+    </div>
+
+    @if (isCreateMode()) {
+      <button
+        (click)="createDesign()"
+        [disabled]="saving() || !name().trim() || !description().trim()"
+        class="w-fit rounded bg-spuk-red px-4 py-2 text-sm text-spuk-bone hover:bg-spuk-red-bright disabled:opacity-50"
+      >
+        {{ saving() ? 'Wird erstellt…' : 'Weiter zu den Bildern' }}
+      </button>
+    } @else {
+      <div class="flex gap-2">
+        <button
+          (click)="saveDraft()"
+          [disabled]="saving()"
+          class="rounded border border-spuk-charcoal-light px-4 py-2 text-sm text-spuk-bone hover:border-spuk-red-bright disabled:opacity-50"
+        >
+          {{ saving() ? 'Speichert…' : 'Änderungen speichern' }}
+        </button>
+      </div>
+
+      <div>
+        <h2 class="mb-2 font-display text-sm text-spuk-fog">Bilder</h2>
+        <div
+          class="flex flex-col items-center justify-center gap-2 rounded border-2 border-dashed p-6 text-center transition"
+          [class.border-spuk-red-bright]="dragOver()"
+          [class.border-spuk-charcoal-light]="!dragOver()"
+          (dragover)="$event.preventDefault(); dragOver.set(true)"
+          (dragleave)="dragOver.set(false)"
+          (drop)="onDrop($event)"
+        >
+          <svg lucideUpload class="h-8 w-8 text-spuk-fog"></svg>
+          <p class="text-sm text-spuk-fog">Bilder hierher ziehen oder</p>
+          <label class="cursor-pointer rounded border border-spuk-charcoal-light px-3 py-1.5 text-sm text-spuk-bone hover:border-spuk-red-bright">
+            Dateien auswählen
+            <input type="file" accept="image/*" multiple class="hidden" (change)="onFilesSelected($event)" />
+          </label>
+          @if (uploading()) {
+            <p class="text-xs text-spuk-fog">Bilder werden hochgeladen…</p>
+          }
+        </div>
+
+        @if (images().length > 0) {
+          <div class="mt-4 grid grid-cols-3 gap-3 sm:grid-cols-4">
+            @for (image of images(); track image.id) {
+              <div class="group relative aspect-square overflow-hidden rounded border border-spuk-charcoal-light">
+                <app-secure-image [src]="thumbUrl(image.id)" [alt]="image.originalFilename" imgClass="h-full w-full object-cover" />
+                <div class="absolute inset-0 flex flex-col items-center justify-center gap-2 bg-spuk-black/70 opacity-0 transition group-hover:opacity-100">
+                  <button
+                    (click)="setPreview(image)"
+                    class="rounded bg-spuk-charcoal px-2 py-1 text-xs text-spuk-bone hover:bg-spuk-red"
+                    [title]="image.preview ? 'Vorschaubild' : 'Als Vorschaubild festlegen'"
+                  >
+                    <svg lucideStar class="h-3.5 w-3.5" [class.fill-spuk-red-bright]="image.preview"></svg>
+                  </button>
+                  <button (click)="removeImage(image)" class="rounded bg-spuk-charcoal px-2 py-1 text-xs text-spuk-bone hover:bg-spuk-red">
+                    <svg lucideTrash class="h-3.5 w-3.5"></svg>
+                  </button>
+                </div>
+                @if (image.preview) {
+                  <span class="absolute left-1 top-1 rounded bg-spuk-red px-1.5 py-0.5 text-[10px] text-spuk-bone">Vorschau</span>
+                }
+              </div>
+            }
+          </div>
+        }
+      </div>
+
+      <button
+        (click)="submitForReview()"
+        [disabled]="submitting() || !canSubmit()"
+        class="w-fit rounded bg-spuk-red px-4 py-2 text-sm text-spuk-bone hover:bg-spuk-red-bright disabled:opacity-50"
+      >
+        {{ submitting() ? 'Wird eingereicht…' : 'Zur Prüfung einreichen' }}
+      </button>
+      @if (!canSubmit()) {
+        <p class="text-xs text-spuk-fog">Name, Beschreibung und mindestens ein Bild sind erforderlich.</p>
+      }
+    }
+
+    @if (error()) {
+      <p class="text-sm text-spuk-red-glow">{{ error() }}</p>
+    }
+
+    @if (designId()) {
+      <a [routerLink]="['/designs', designId()]" class="text-sm text-spuk-fog hover:text-spuk-bone">&larr; Zurück zum Design</a>
+    }
+  </div>
+}

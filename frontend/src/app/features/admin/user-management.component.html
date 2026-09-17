@@ -1,0 +1,111 @@
+<div class="flex flex-col gap-8">
+  <div>
+    <h1 class="mb-4 font-display text-2xl text-spuk-bone">Benutzerverwaltung</h1>
+
+    @if (lastTemporaryPassword(); as temp) {
+      <div class="mb-4 flex flex-wrap items-center justify-between gap-2 rounded border border-spuk-red/60 bg-spuk-charcoal p-3 text-sm">
+        <span>
+          Temporäres Passwort für <strong>{{ temp.username }}</strong>:
+          <code class="rounded bg-spuk-black px-2 py-0.5 text-spuk-red-glow">{{ temp.password }}</code>
+          (bitte sicher weitergeben, wird nur einmal angezeigt)
+        </span>
+        <button (click)="lastTemporaryPassword.set(null)" class="text-spuk-fog hover:text-spuk-bone">Ausblenden</button>
+      </div>
+    }
+
+    <div class="rounded-lg border border-spuk-charcoal-light bg-spuk-charcoal p-4">
+      <h2 class="mb-3 font-display text-sm text-spuk-fog">Neuen Benutzer anlegen</h2>
+      <div class="grid gap-3 sm:grid-cols-[1fr_1fr_auto_auto]">
+        <input
+          type="text"
+          placeholder="Benutzername"
+          class="rounded border border-spuk-charcoal-light bg-spuk-black px-3 py-2 text-sm text-spuk-bone outline-none focus:border-spuk-red-bright"
+          [(ngModel)]="newUsername"
+        />
+        <input
+          type="text"
+          placeholder="Anzeigename"
+          class="rounded border border-spuk-charcoal-light bg-spuk-black px-3 py-2 text-sm text-spuk-bone outline-none focus:border-spuk-red-bright"
+          [(ngModel)]="newDisplayName"
+        />
+        <select
+          class="rounded border border-spuk-charcoal-light bg-spuk-black px-3 py-2 text-sm text-spuk-bone outline-none focus:border-spuk-red-bright"
+          [(ngModel)]="newRole"
+        >
+          @for (role of roles; track role) {
+            <option [value]="role">{{ role }}</option>
+          }
+        </select>
+        <button
+          (click)="createUser()"
+          [disabled]="creating() || !newUsername.trim() || !newDisplayName.trim()"
+          class="flex items-center justify-center gap-2 rounded bg-spuk-red px-4 py-2 text-sm text-spuk-bone hover:bg-spuk-red-bright disabled:opacity-50"
+        >
+          <svg lucideUserPlus class="h-4 w-4"></svg>
+          Anlegen
+        </button>
+      </div>
+    </div>
+
+    @if (error()) {
+      <p class="mt-2 text-sm text-spuk-red-glow">{{ error() }}</p>
+    }
+  </div>
+
+  @if (loading()) {
+    <p class="text-spuk-fog">Lädt…</p>
+  } @else {
+    <div class="overflow-x-auto rounded-lg border border-spuk-charcoal-light">
+      <table class="w-full text-left text-sm">
+        <thead class="bg-spuk-charcoal text-spuk-fog">
+          <tr>
+            <th class="px-4 py-2">Benutzername</th>
+            <th class="px-4 py-2">Anzeigename</th>
+            <th class="px-4 py-2">Rolle</th>
+            <th class="px-4 py-2">Status</th>
+            <th class="px-4 py-2">Aktionen</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (user of users(); track user.id) {
+            <tr class="border-t border-spuk-charcoal-light">
+              <td class="px-4 py-2 text-spuk-bone">{{ user.username }}</td>
+              <td class="px-4 py-2 text-spuk-bone">{{ user.displayName }}</td>
+              <td class="px-4 py-2">
+                <select
+                  [ngModel]="user.role"
+                  (ngModelChange)="changeRole(user, $event)"
+                  [disabled]="isSelf(user)"
+                  class="rounded border border-spuk-charcoal-light bg-spuk-black px-2 py-1 text-xs text-spuk-bone disabled:opacity-50"
+                >
+                  @for (role of roles; track role) {
+                    <option [value]="role">{{ role }}</option>
+                  }
+                </select>
+              </td>
+              <td class="px-4 py-2">
+                <button
+                  (click)="toggleEnabled(user)"
+                  [disabled]="isSelf(user)"
+                  class="rounded px-2 py-1 text-xs disabled:opacity-50"
+                  [class]="user.enabled ? 'bg-green-900 text-green-200' : 'bg-spuk-charcoal-light text-spuk-red-glow'"
+                >
+                  {{ user.enabled ? 'Aktiv' : 'Deaktiviert' }}
+                </button>
+              </td>
+              <td class="px-4 py-2">
+                <button
+                  (click)="resetPassword(user)"
+                  class="flex items-center gap-1 rounded border border-spuk-charcoal-light px-2 py-1 text-xs text-spuk-fog hover:border-spuk-red-bright"
+                >
+                  <svg lucideKeyRound class="h-3.5 w-3.5"></svg>
+                  Passwort zurücksetzen
+                </button>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+</div>

@@ -1,13 +1,36 @@
-import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
-import { LucideGhost } from '@lucide/angular';
+import { Component, inject, signal } from '@angular/core';
+import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
+import { LucideGhost, LucideMenu, LucideX } from '@lucide/angular';
+import { AuthService } from './core/services/auth.service';
 
 @Component({
   selector: 'app-root',
-  imports: [RouterOutlet, LucideGhost],
+  standalone: true,
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideGhost, LucideMenu, LucideX],
   templateUrl: './app.component.html',
-  styleUrl: './app.component.scss'
+  styleUrl: './app.component.scss',
 })
 export class AppComponent {
   readonly title = 'Spukhaus';
+  readonly authService = inject(AuthService);
+  private readonly router = inject(Router);
+
+  readonly menuOpen = signal(false);
+
+  toggleMenu(): void {
+    this.menuOpen.update((open) => !open);
+  }
+
+  closeMenu(): void {
+    this.menuOpen.set(false);
+  }
+
+  logout(): void {
+    this.closeMenu();
+    this.authService.logout();
+  }
+
+  get showChrome(): boolean {
+    return !['/login', '/change-password'].includes(this.router.url.split('?')[0]);
+  }
 }
