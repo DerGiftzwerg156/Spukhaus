@@ -1,0 +1,46 @@
+<div>
+  <div class="mb-6 flex items-center justify-between">
+    <h1 class="font-display text-2xl text-spuk-bone">Meine Designs</h1>
+    <button
+      (click)="createNew()"
+      class="flex items-center gap-2 rounded bg-spuk-red px-4 py-2 text-sm text-spuk-bone hover:bg-spuk-red-bright"
+    >
+      <svg lucidePlus class="h-4 w-4"></svg>
+      Neues Design
+    </button>
+  </div>
+
+  @if (designs().length === 0) {
+    <p class="rounded border border-dashed border-spuk-charcoal-light p-8 text-center text-spuk-fog">
+      Du hast noch keine Designs erstellt.
+    </p>
+  } @else {
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      @for (design of designs(); track design.id) {
+        <a
+          [routerLink]="['/designs', design.id]"
+          class="group overflow-hidden rounded-lg border border-spuk-charcoal-light bg-spuk-charcoal transition hover:border-spuk-red-bright"
+        >
+          <div class="relative aspect-square w-full overflow-hidden">
+            <app-secure-image
+              [src]="design.previewImageId ? '/api/images/' + design.previewImageId + '/thumbnail' : null"
+              [alt]="design.name"
+              imgClass="h-full w-full object-cover transition group-hover:scale-105"
+            />
+            <span class="absolute right-1.5 top-1.5 rounded px-1.5 py-0.5 text-[10px] font-medium" [class]="statusClass(design.status)">
+              {{ statusLabel(design.status) }}
+            </span>
+          </div>
+          <div class="p-3">
+            <p class="flex items-center gap-1 truncate font-display text-sm text-spuk-bone">
+              @if (design.isFork) {
+                <svg lucideGitFork class="h-3 w-3 shrink-0"></svg>
+              }
+              {{ design.name }}
+            </p>
+          </div>
+        </a>
+      }
+    </div>
+  }
+</div>

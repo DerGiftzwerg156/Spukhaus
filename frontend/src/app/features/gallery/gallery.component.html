@@ -1,0 +1,64 @@
+<div>
+  <div class="mb-6 flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <h1 class="font-display text-2xl text-spuk-bone">Design-Galerie</h1>
+    <div class="relative w-full sm:w-72">
+      <svg lucideSearch class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-spuk-fog"></svg>
+      <input
+        type="search"
+        placeholder="Nach Namen suchen…"
+        class="w-full rounded border border-spuk-charcoal-light bg-spuk-charcoal py-2 pl-9 pr-3 text-sm text-spuk-bone outline-none focus:border-spuk-red-bright"
+        [(ngModel)]="searchTerm"
+        (ngModelChange)="onSearchChange()"
+      />
+    </div>
+  </div>
+
+  @if (result().content.length === 0) {
+    <p class="rounded border border-dashed border-spuk-charcoal-light p-8 text-center text-spuk-fog">
+      Keine Designs gefunden.
+    </p>
+  } @else {
+    <div class="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      @for (design of result().content; track design.id) {
+        <a
+          [routerLink]="['/designs', design.id]"
+          class="group overflow-hidden rounded-lg border border-spuk-charcoal-light bg-spuk-charcoal transition hover:border-spuk-red-bright"
+        >
+          <div class="aspect-square w-full overflow-hidden">
+            <app-secure-image
+              [src]="previewUrl(design)"
+              [alt]="design.name"
+              imgClass="h-full w-full object-cover transition group-hover:scale-105"
+            />
+          </div>
+          <div class="p-3">
+            <p class="truncate font-display text-sm text-spuk-bone">{{ design.name }}</p>
+            <p class="flex items-center gap-1 truncate text-xs text-spuk-fog">
+              @if (design.isFork) {
+                <svg lucideGitFork class="h-3 w-3"></svg>
+              }
+              {{ design.ownerDisplayName }}
+            </p>
+          </div>
+        </a>
+      }
+    </div>
+
+    @if (result().totalPages > 1) {
+      <div class="mt-6 flex flex-wrap items-center justify-center gap-2">
+        @for (p of [].constructor(result().totalPages); track $index) {
+          <button
+            (click)="goToPage($index)"
+            class="h-8 w-8 rounded text-sm transition"
+            [class.bg-spuk-red]="page() === $index"
+            [class.text-spuk-bone]="page() === $index"
+            [class.text-spuk-fog]="page() !== $index"
+            [class.hover:bg-spuk-charcoal-light]="page() !== $index"
+          >
+            {{ $index + 1 }}
+          </button>
+        }
+      </div>
+    }
+  }
+</div>

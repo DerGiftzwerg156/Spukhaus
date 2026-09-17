@@ -1,0 +1,176 @@
+@if (detail(); as detail) {
+  <div class="flex flex-col gap-6">
+    <a routerLink="/designs" class="text-sm text-spuk-fog hover:text-spuk-bone">&larr; Zurück zur Galerie</a>
+
+    @if (detail.canManage) {
+      <div class="rounded-lg border border-spuk-red/60 bg-spuk-charcoal p-4">
+        <div class="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            @if (detail.inFlightVersion; as inFlight) {
+              <p class="font-display text-spuk-bone">Status: {{ statusLabel(inFlight.status) }} (Version {{ inFlight.versionNumber }})</p>
+              @if (inFlight.status === 'REJECTED' && inFlight.rejectionComment) {
+                <p class="mt-1 text-sm text-spuk-red-glow">Ablehnungsgrund: {{ inFlight.rejectionComment }}</p>
+              }
+            } @else {
+              <p class="font-display text-spuk-bone">Status: Veröffentlicht</p>
+            }
+          </div>
+          <div class="flex flex-wrap gap-2">
+            @if (!detail.inFlightVersion || detail.inFlightVersion.status !== 'PENDING_REVIEW') {
+              <button
+                (click)="edit()"
+                class="flex items-center gap-1.5 rounded bg-spuk-red px-3 py-1.5 text-sm text-spuk-bone hover:bg-spuk-red-bright"
+              >
+                <svg lucidePencil class="h-4 w-4"></svg>
+                {{ detail.inFlightVersion ? 'Bearbeiten' : 'Neue Version bearbeiten' }}
+              </button>
+            }
+            @if (detail.inFlightVersion?.status === 'PENDING_REVIEW' && authService.isAtLeastAdmin()) {
+              <button
+                (click)="approve()"
+                [disabled]="reviewing()"
+                class="flex items-center gap-1.5 rounded bg-green-800 px-3 py-1.5 text-sm text-spuk-bone hover:bg-green-700 disabled:opacity-50"
+              >
+                <svg lucideCheck class="h-4 w-4"></svg>
+                Bestätigen
+              </button>
+              <button
+                (click)="startReject()"
+                [disabled]="reviewing()"
+                class="flex items-center gap-1.5 rounded border border-spuk-red px-3 py-1.5 text-sm text-spuk-bone hover:bg-spuk-red/20 disabled:opacity-50"
+              >
+                <svg lucideX class="h-4 w-4"></svg>
+                Ablehnen
+              </button>
+            }
+          </div>
+        </div>
+
+        @if (rejectMode()) {
+          <div class="mt-3 flex flex-col gap-2">
+            <textarea
+              rows="2"
+              placeholder="Grund für die Ablehnung…"
+              class="w-full rounded border border-spuk-charcoal-light bg-spuk-black p-2 text-sm text-spuk-bone outline-none focus:border-spuk-red-bright"
+              [value]="rejectComment()"
+              (input)="rejectComment.set($any($event.target).value)"
+            ></textarea>
+            <div class="flex gap-2">
+              <button
+                (click)="confirmReject()"
+                [disabled]="reviewing() || !rejectComment().trim()"
+                class="rounded bg-spuk-red px-3 py-1.5 text-sm text-spuk-bone hover:bg-spuk-red-bright disabled:opacity-50"
+              >
+                Ablehnung bestätigen
+              </button>
+              <button (click)="cancelReject()" class="rounded border border-spuk-charcoal-light px-3 py-1.5 text-sm text-spuk-fog">
+                Abbrechen
+              </button>
+            </div>
+          </div>
+        }
+        @if (actionError()) {
+          <p class="mt-2 text-sm text-spuk-red-glow">{{ actionError() }}</p>
+        }
+      </div>
+    }
+
+    @if (displayVersion(); as version) {
+      <div class="grid gap-6 md:grid-cols-2">
+        <div>
+          <div class="relative aspect-square overflow-hidden rounded-lg border border-spuk-charcoal-light bg-spuk-charcoal">
+            @if (currentImage(); as image) {
+              <app-secure-image [src]="imageUrl(image.id)" [alt]="version.name" imgClass="h-full w-full object-contain" />
+            }
+            @if (version.images.length > 1) {
+              <button
+                (click)="prevImage()"
+                class="absolute left-2 top-1/2 -translate-y-1/2 rounded-full bg-spuk-black/60 p-1.5 text-spuk-bone hover:bg-spuk-black/90"
+              >
+                <svg lucideChevronLeft class="h-5 w-5"></svg>
+              </button>
+              <button
+                (click)="nextImage()"
+                class="absolute right-2 top-1/2 -translate-y-1/2 rounded-full bg-spuk-black/60 p-1.5 text-spuk-bone hover:bg-spuk-black/90"
+              >
+                <svg lucideChevronRight class="h-5 w-5"></svg>
+              </button>
+            }
+          </div>
+          @if (version.images.length > 1) {
+            <div class="mt-2 flex gap-2 overflow-x-auto">
+              @for (image of version.images; track image.id; let i = $index) {
+                <button
+                  (click)="selectImage(i)"
+                  class="h-16 w-16 shrink-0 overflow-hidden rounded border-2"
+                  [class.border-spuk-red-bright]="i === imageIndex()"
+                  [class.border-transparent]="i !== imageIndex()"
+                >
+                  <app-secure-image [src]="thumbUrl(image.id)" [alt]="version.name" imgClass="h-full w-full object-cover" />
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="flex flex-col gap-4">
+          <div>
+            <h1 class="font-display text-2xl text-spuk-bone">{{ version.name }}</h1>
+            <p class="text-sm text-spuk-fog">
+              von {{ detail.ownerDisplayName }} · Version {{ version.versionNumber }}
+            </p>
+          </div>
+          <p class="whitespace-pre-line text-spuk-bone/90">{{ version.description }}</p>
+
+          @if (detail.forkedFrom; as origin) {
+            <a
+              [routerLink]="['/designs', origin.id]"
+              class="flex items-center gap-2 rounded border border-spuk-charcoal-light p-3 text-sm text-spuk-fog hover:border-spuk-red-bright"
+            >
+              <svg lucideGitFork class="h-4 w-4"></svg>
+              Fork von: {{ origin.name }}
+            </a>
+          }
+
+          @if (detail.ownerId !== authService.currentUser()?.id && authService.isAtLeastCreator()) {
+            <button
+              (click)="fork()"
+              [disabled]="forking()"
+              class="flex w-fit items-center gap-2 rounded border border-spuk-charcoal-light px-4 py-2 text-sm text-spuk-bone hover:border-spuk-red-bright disabled:opacity-50"
+            >
+              <svg lucideGitFork class="h-4 w-4"></svg>
+              {{ forking() ? 'Wird erstellt…' : 'Design forken' }}
+            </button>
+          }
+
+          @if (detail.forks.length > 0) {
+            <div>
+              <h2 class="mb-2 font-display text-sm text-spuk-fog">Forks dieses Designs</h2>
+              <div class="grid grid-cols-3 gap-2">
+                @for (fork of detail.forks; track fork.id) {
+                  <a
+                    [routerLink]="['/designs', fork.id]"
+                    class="overflow-hidden rounded border border-spuk-charcoal-light hover:border-spuk-red-bright"
+                  >
+                    <div class="aspect-square">
+                      @if (fork.previewImageId) {
+                        <app-secure-image [src]="thumbUrl(fork.previewImageId)" [alt]="fork.name" imgClass="h-full w-full object-cover" />
+                      }
+                    </div>
+                    <p class="truncate p-1.5 text-xs text-spuk-fog">{{ fork.name }}</p>
+                  </a>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    } @else {
+      <div class="rounded-lg border border-dashed border-spuk-charcoal-light p-10 text-center">
+        <p class="text-spuk-fog">Dieses Design wurde noch nicht veröffentlicht.</p>
+      </div>
+    }
+  </div>
+} @else {
+  <p class="text-spuk-fog">Lädt…</p>
+}
