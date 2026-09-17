@@ -36,7 +36,7 @@ jwt:
 spukhaus:
   bootstrap:
     tech-admin-username: ${BOOTSTRAP_TECH_ADMIN_USERNAME:techadmin}
-    tech-admin-password: ${BOOTSTRAP_TECH_ADMIN_PASSWORD:}
+    tech-admin-password: ${BOOTSTRAP_TECH_ADMIN_PASSWORD:eiX1eu7v1}
     tech-admin-display-name: ${BOOTSTRAP_TECH_ADMIN_DISPLAY_NAME:Tech Admin}
 
 server:
