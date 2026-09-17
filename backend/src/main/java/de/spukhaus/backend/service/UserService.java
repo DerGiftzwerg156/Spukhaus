@@ -42,10 +42,11 @@ public class UserService {
     public record CreatedUser(User user, String temporaryPassword) {
     }
 
-    public CreatedUser createUser(CreateUserRequest request) {
+    public CreatedUser createUser(User actor, CreateUserRequest request) {
         if (userRepository.existsByUsernameIgnoreCase(request.username())) {
             throw ApiException.conflict("Benutzername bereits vergeben.");
         }
+        requireCanAssignRole(actor, request.role());
         String tempPassword = generateTemporaryPassword();
         User user = new User(request.username(), passwordEncoder.encode(tempPassword),
                 request.displayName(), request.role());
@@ -54,12 +55,14 @@ public class UserService {
         return new CreatedUser(user, tempPassword);
     }
 
-    public User updateUser(Long id, UpdateUserRequest request) {
+    public User updateUser(User actor, Long id, UpdateUserRequest request) {
         User user = getById(id);
+        requireCanManageTarget(actor, user);
         if (request.displayName() != null && !request.displayName().isBlank()) {
             user.setDisplayName(request.displayName());
         }
         if (request.role() != null && request.role() != user.getRole()) {
+            requireCanAssignRole(actor, request.role());
             guardNotLastTechAdmin(user, "die Rolle ändern");
             user.setRole(request.role());
         }
@@ -72,12 +75,27 @@ public class UserService {
         return user;
     }
 
-    public String resetPassword(Long id) {
+    public String resetPassword(User actor, Long id) {
         User user = getById(id);
+        requireCanManageTarget(actor, user);
         String tempPassword = generateTemporaryPassword();
         user.setPasswordHash(passwordEncoder.encode(tempPassword));
         user.setMustChangePassword(true);
         return tempPassword;
+    }
+
+    /** Nur ein TechAdmin darf die Rolle TechAdmin vergeben (Rollen-Hierarchie: Admin < TechAdmin). */
+    private void requireCanAssignRole(User actor, Role role) {
+        if (role == Role.TECH_ADMIN && actor.getRole() != Role.TECH_ADMIN) {
+            throw ApiException.forbidden("Nur ein TechAdmin darf die Rolle TechAdmin vergeben.");
+        }
+    }
+
+    /** Ein einfacher Admin darf keinen TechAdmin-Account verändern (Rollen-Hierarchie: Admin < TechAdmin). */
+    private void requireCanManageTarget(User actor, User target) {
+        if (target.getRole() == Role.TECH_ADMIN && actor.getRole() != Role.TECH_ADMIN) {
+            throw ApiException.forbidden("Nur ein TechAdmin darf einen TechAdmin-Account verändern.");
+        }
     }
 
     public void changeOwnPassword(User user, String currentPassword, String newPassword) {

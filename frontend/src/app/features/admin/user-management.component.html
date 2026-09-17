@@ -75,9 +75,12 @@
                 <select
                   [ngModel]="user.role"
                   (ngModelChange)="changeRole(user, $event)"
-                  [disabled]="isSelf(user)"
+                  [disabled]="isSelf(user) || !canManageTarget(user)"
                   class="rounded border border-spuk-charcoal-light bg-spuk-black px-2 py-1 text-xs text-spuk-bone disabled:opacity-50"
                 >
+                  @if (!canManageTarget(user)) {
+                    <option [value]="user.role">{{ user.role }}</option>
+                  }
                   @for (role of roles; track role) {
                     <option [value]="role">{{ role }}</option>
                   }
@@ -86,7 +89,7 @@
               <td class="px-4 py-2">
                 <button
                   (click)="toggleEnabled(user)"
-                  [disabled]="isSelf(user)"
+                  [disabled]="isSelf(user) || !canManageTarget(user)"
                   class="rounded px-2 py-1 text-xs disabled:opacity-50"
                   [class]="user.enabled ? 'bg-green-900 text-green-200' : 'bg-spuk-charcoal-light text-spuk-red-glow'"
                 >
@@ -96,7 +99,8 @@
               <td class="px-4 py-2">
                 <button
                   (click)="resetPassword(user)"
-                  class="flex items-center gap-1 rounded border border-spuk-charcoal-light px-2 py-1 text-xs text-spuk-fog hover:border-spuk-red-bright"
+                  [disabled]="!canManageTarget(user)"
+                  class="flex items-center gap-1 rounded border border-spuk-charcoal-light px-2 py-1 text-xs text-spuk-fog hover:border-spuk-red-bright disabled:opacity-50"
                 >
                   <svg lucideKeyRound class="h-3.5 w-3.5"></svg>
                   Passwort zurücksetzen

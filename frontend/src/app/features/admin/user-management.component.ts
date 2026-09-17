@@ -22,7 +22,14 @@ export class UserManagementComponent {
   readonly error = signal<string | null>(null);
   readonly lastTemporaryPassword = signal<{ username: string; password: string } | null>(null);
 
-  readonly roles: Role[] = ['USER', 'CREATOR', 'ADMIN', 'TECH_ADMIN'];
+  private readonly allRoles: Role[] = ['USER', 'CREATOR', 'ADMIN', 'TECH_ADMIN'];
+
+  /** Nur ein TechAdmin darf die Rolle TechAdmin vergeben (Rollen-Hierarchie: Admin < TechAdmin). */
+  get roles(): Role[] {
+    return this.authService.currentUser()?.role === 'TECH_ADMIN'
+      ? this.allRoles
+      : this.allRoles.filter((role) => role !== 'TECH_ADMIN');
+  }
 
   newUsername = '';
   newDisplayName = '';
@@ -100,5 +107,10 @@ export class UserManagementComponent {
 
   isSelf(user: User): boolean {
     return this.authService.currentUser()?.id === user.id;
+  }
+
+  /** Ein einfacher Admin darf keinen TechAdmin-Account verändern (Rollen-Hierarchie: Admin < TechAdmin). */
+  canManageTarget(user: User): boolean {
+    return user.role !== 'TECH_ADMIN' || this.authService.currentUser()?.role === 'TECH_ADMIN';
   }
 }

@@ -2,7 +2,7 @@ import { HttpErrorResponse } from '@angular/common/http';
 import { Component, computed, inject, signal } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
-import { LucideStar, LucideTrash, LucideUpload } from '@lucide/angular';
+import { LucideCamera, LucideStar, LucideTrash, LucideUpload } from '@lucide/angular';
 import { DesignService } from '../../core/services/design.service';
 import { DesignImage, DesignVersion } from '../../core/models/design.model';
 import { SecureImageComponent } from '../../shared/secure-image.component';
@@ -10,7 +10,15 @@ import { SecureImageComponent } from '../../shared/secure-image.component';
 @Component({
   selector: 'app-design-editor',
   standalone: true,
-  imports: [FormsModule, RouterLink, SecureImageComponent, LucideUpload, LucideTrash, LucideStar],
+  imports: [
+    FormsModule,
+    RouterLink,
+    SecureImageComponent,
+    LucideUpload,
+    LucideTrash,
+    LucideStar,
+    LucideCamera,
+  ],
   templateUrl: './design-editor.component.html',
 })
 export class DesignEditorComponent {

@@ -67,10 +67,17 @@
         >
           <svg lucideUpload class="h-8 w-8 text-spuk-fog"></svg>
           <p class="text-sm text-spuk-fog">Bilder hierher ziehen oder</p>
-          <label class="cursor-pointer rounded border border-spuk-charcoal-light px-3 py-1.5 text-sm text-spuk-bone hover:border-spuk-red-bright">
-            Dateien auswählen
-            <input type="file" accept="image/*" multiple class="hidden" (change)="onFilesSelected($event)" />
-          </label>
+          <div class="flex flex-wrap justify-center gap-2">
+            <label class="cursor-pointer rounded border border-spuk-charcoal-light px-3 py-1.5 text-sm text-spuk-bone hover:border-spuk-red-bright">
+              Dateien auswählen
+              <input type="file" accept="image/*" multiple class="hidden" (change)="onFilesSelected($event)" />
+            </label>
+            <label class="flex cursor-pointer items-center gap-1.5 rounded border border-spuk-charcoal-light px-3 py-1.5 text-sm text-spuk-bone hover:border-spuk-red-bright">
+              <svg lucideCamera class="h-4 w-4"></svg>
+              Foto aufnehmen
+              <input type="file" accept="image/*" capture="environment" class="hidden" (change)="onFilesSelected($event)" />
+            </label>
+          </div>
           @if (uploading()) {
             <p class="text-xs text-spuk-fog">Bilder werden hochgeladen…</p>
           }

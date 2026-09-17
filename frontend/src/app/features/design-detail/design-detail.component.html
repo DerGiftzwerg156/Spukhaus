@@ -2,26 +2,30 @@
   <div class="flex flex-col gap-6">
     <a routerLink="/designs" class="text-sm text-spuk-fog hover:text-spuk-bone">&larr; Zurück zur Galerie</a>
 
-    @if (detail.canManage && detail.inFlightVersion; as inFlight) {
+    @if (detail.canManage) {
       <div class="rounded-lg border border-spuk-red/60 bg-spuk-charcoal p-4">
         <div class="flex flex-wrap items-center justify-between gap-3">
           <div>
-            <p class="font-display text-spuk-bone">Status: {{ statusLabel(inFlight.status) }} (Version {{ inFlight.versionNumber }})</p>
-            @if (inFlight.status === 'REJECTED' && inFlight.rejectionComment) {
-              <p class="mt-1 text-sm text-spuk-red-glow">Ablehnungsgrund: {{ inFlight.rejectionComment }}</p>
+            @if (detail.inFlightVersion; as inFlight) {
+              <p class="font-display text-spuk-bone">Status: {{ statusLabel(inFlight.status) }} (Version {{ inFlight.versionNumber }})</p>
+              @if (inFlight.status === 'REJECTED' && inFlight.rejectionComment) {
+                <p class="mt-1 text-sm text-spuk-red-glow">Ablehnungsgrund: {{ inFlight.rejectionComment }}</p>
+              }
+            } @else {
+              <p class="font-display text-spuk-bone">Status: Veröffentlicht</p>
             }
           </div>
           <div class="flex flex-wrap gap-2">
-            @if (inFlight.status !== 'PENDING_REVIEW') {
+            @if (!detail.inFlightVersion || detail.inFlightVersion.status !== 'PENDING_REVIEW') {
               <button
                 (click)="edit()"
                 class="flex items-center gap-1.5 rounded bg-spuk-red px-3 py-1.5 text-sm text-spuk-bone hover:bg-spuk-red-bright"
               >
                 <svg lucidePencil class="h-4 w-4"></svg>
-                Bearbeiten
+                {{ detail.inFlightVersion ? 'Bearbeiten' : 'Neue Version bearbeiten' }}
               </button>
             }
-            @if (inFlight.status === 'PENDING_REVIEW' && authService.isAtLeastAdmin()) {
+            @if (detail.inFlightVersion?.status === 'PENDING_REVIEW' && authService.isAtLeastAdmin()) {
               <button
                 (click)="approve()"
                 [disabled]="reviewing()"
@@ -164,15 +168,6 @@
     } @else {
       <div class="rounded-lg border border-dashed border-spuk-charcoal-light p-10 text-center">
         <p class="text-spuk-fog">Dieses Design wurde noch nicht veröffentlicht.</p>
-        @if (detail.canManage && detail.inFlightVersion?.status !== 'PENDING_REVIEW') {
-          <button
-            (click)="edit()"
-            class="mt-4 flex items-center gap-2 mx-auto rounded bg-spuk-red px-4 py-2 text-sm text-spuk-bone hover:bg-spuk-red-bright"
-          >
-            <svg lucidePencil class="h-4 w-4"></svg>
-            Entwurf bearbeiten
-          </button>
-        }
       </div>
     }
   </div>
