@@ -7,9 +7,21 @@ spring:
   jpa:
     hibernate:
       ddl-auto: create-drop
+  flyway:
+    enabled: false
 
 minio:
   url: http://localhost:9000
   access-key: test
   secret-key: test12345
   bucket: spukhaus-designs-test
+
+jwt:
+  secret: test-secret-key-for-jwt-signing-in-tests-only-not-for-prod
+  expiration-minutes: 60
+
+spukhaus:
+  bootstrap:
+    tech-admin-username: techadmin
+    tech-admin-password: ""
+    tech-admin-display-name: Tech Admin

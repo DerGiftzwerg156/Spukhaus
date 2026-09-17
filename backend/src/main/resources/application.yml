@@ -14,8 +14,10 @@ spring:
     open-in-view: false
   servlet:
     multipart:
-      max-file-size: 25MB
-      max-request-size: 100MB
+      max-file-size: -1
+      max-request-size: -1
+  flyway:
+    enabled: true
 
 minio:
   url: ${MINIO_URL:http://localhost:9000}
@@ -23,8 +25,20 @@ minio:
   secret-key: ${MINIO_SECRET_KEY:spukhaus123}
   bucket: ${MINIO_BUCKET:spukhaus-designs}
 
+jwt:
+  secret: ${JWT_SECRET:dev-only-insecure-secret-please-override-in-production-min-32-bytes}
+  expiration-minutes: ${JWT_EXPIRATION_MINUTES:480}
+
+spukhaus:
+  bootstrap:
+    tech-admin-username: ${BOOTSTRAP_TECH_ADMIN_USERNAME:techadmin}
+    tech-admin-password: ${BOOTSTRAP_TECH_ADMIN_PASSWORD:}
+    tech-admin-display-name: ${BOOTSTRAP_TECH_ADMIN_DISPLAY_NAME:Tech Admin}
+
 server:
   port: ${SERVER_PORT:8080}
+  tomcat:
+    max-swallow-size: -1
 
 management:
   endpoints:
