@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:h2:mem:spukhaus;MODE=MariaDB
+    username: sa
+    password: ""
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create-drop
+
+minio:
+  url: http://localhost:9000
+  access-key: test
+  secret-key: test12345
+  bucket: spukhaus-designs-test

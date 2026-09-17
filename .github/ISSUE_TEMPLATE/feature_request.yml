@@ -1,0 +1,38 @@
+name: Feature Request
+description: Eine neue Funktion oder Verbesserung vorschlagen
+title: "[Feature]: "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: Welches Problem soll gelöst werden?
+    validations:
+      required: true
+
+  - type: textarea
+    id: solution
+    attributes:
+      label: Vorgeschlagene Lösung
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternativen
+    validations:
+      required: false
+
+  - type: dropdown
+    id: component
+    attributes:
+      label: Betroffene Komponente
+      options:
+        - Frontend (Web)
+        - Frontend (Android/Capacitor)
+        - Backend
+        - Infrastruktur (Docker/CI)
+        - Unbekannt
+    validations:
+      required: true
