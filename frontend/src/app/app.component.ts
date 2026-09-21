@@ -2,16 +2,17 @@ import { Component, inject, signal } from '@angular/core';
 import { Router, RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 import { LucideGhost, LucideMenu, LucideX } from '@lucide/angular';
 import { AuthService } from './core/services/auth.service';
+import {NgOptimizedImage} from '@angular/common';
 
 @Component({
   selector: 'app-root',
   standalone: true,
-  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideGhost, LucideMenu, LucideX],
+  imports: [RouterOutlet, RouterLink, RouterLinkActive, LucideGhost, LucideMenu, LucideX, NgOptimizedImage],
   templateUrl: './app.component.html',
   styleUrl: './app.component.scss',
 })
 export class AppComponent {
-  readonly title = 'Spukhaus';
+  readonly title = 'Das Spukhaus';
   readonly authService = inject(AuthService);
   private readonly router = inject(Router);
 

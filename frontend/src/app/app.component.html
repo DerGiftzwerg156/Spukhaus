@@ -3,8 +3,16 @@
     <header class="sticky top-0 z-20 border-b border-spuk-charcoal-light bg-spuk-charcoal/95 backdrop-blur">
       <div class="mx-auto flex max-w-6xl items-center justify-between gap-4 px-4 py-3">
         <a routerLink="/designs" class="flex items-center gap-2" (click)="closeMenu()">
-          <svg lucideGhost class="h-7 w-7 text-spuk-red-bright"></svg>
-          <span class="font-display text-lg tracking-wide">{{ title }}</span>
+          <img
+            ngSrc="Logo.png"
+            width="300"
+            height="300"
+            alt="Spukhaus Logo"
+            class="h-12 w-12 object-contain"
+            priority
+          />
+<!--          <svg lucideGhost class="h-7 w-7 text-spuk-red-bright"></svg>-->
+<!--          <span class="font-display text-lg tracking-wide">{{ title }}</span>-->
         </a>
 
         <nav class="hidden items-center gap-1 md:flex">
