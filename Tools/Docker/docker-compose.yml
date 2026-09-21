@@ -70,6 +70,7 @@ services:
       JWT_SECRET: kfhszfh38fks89fke8stw2mdlo9dzfjeß
       BOOTSTRAP_TECH_ADMIN_USERNAME: ${BOOTSTRAP_TECH_ADMIN_USERNAME:-techadmin}
       BOOTSTRAP_TECH_ADMIN_PASSWORD: eiX1eu7v+1
+      SPUKHAUS_CORS_ALLOWED_ORIGINS: http://localhost:8081,http://192.168.178.48:8081
     ports:
       - "8080:8080"
 
