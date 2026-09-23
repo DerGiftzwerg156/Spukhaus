@@ -83,6 +83,8 @@ JWT_SECRET='<mind-32-zeichen>' BOOTSTRAP_TECH_ADMIN_PASSWORD='<ein-sicheres-pass
 
 Startet MariaDB, MinIO (inkl. automatischer Bucket-Anlage), Backend und Frontend zusammen. Frontend: http://localhost:8081, Backend: http://localhost:8080.
 
+Für das Produktions-Deployment auf dem VPS (https://spukhaus.nexacode.de, hinter einem gemeinsamen Reverse-Proxy) gibt es `Tools/Docker/docker-compose.prod.yml`, siehe [Tools/Docker/README.md](Tools/Docker/README.md#produktion-vps-httpsspukhausnexacodede).
+
 ## Container-Images
 
 Sowohl Backend als auch Frontend besitzen ein eigenes `Dockerfile` und lassen sich unabhängig bauen:

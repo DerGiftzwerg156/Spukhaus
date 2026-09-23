@@ -32,3 +32,27 @@ docker compose -f Tools/Docker/docker-compose.yml down
 ```
 
 Mit `-v` zusätzlich die Volumes (Datenbankinhalt, Objektspeicher) löschen.
+
+## Produktion (VPS, https://spukhaus.nexacode.de)
+
+`docker-compose.prod.yml` ist für den VPS gedacht, auf dem Spukhaus zusammen mit weiteren
+Projekten (z. B. der Stempeluhr) läuft. TLS terminiert ein gemeinsamer Reverse-Proxy (Caddy),
+dessen Konfiguration im Stempeluhr-Repo unter `deploy/reverse-proxy/` liegt. Der Stack öffnet
+**keine** Host-Ports: MariaDB, MinIO und Backend sind nur intern erreichbar, das Frontend tritt
+zusätzlich dem externen Docker-Netzwerk `web-proxy` (Alias `spukhaus-web`) bei.
+
+Voraussetzungen: Reverse-Proxy läuft, Netzwerk existiert (`docker network create web-proxy`),
+DNS-Eintrag `spukhaus.nexacode.de` zeigt auf den VPS.
+
+```bash
+cp Tools/Docker/.env.example Tools/Docker/.env
+# alle Werte in Tools/Docker/.env ersetzen, z. B. mit: openssl rand -base64 48
+docker compose -f Tools/Docker/docker-compose.prod.yml --env-file Tools/Docker/.env up -d --build
+docker compose -f Tools/Docker/docker-compose.prod.yml --env-file Tools/Docker/.env logs -f backend
+```
+
+Aktualisieren: `git pull` und denselben `up -d --build`-Befehl erneut ausführen. Daten liegen in
+den Volumes `spukhaus_mariadb-data` und `spukhaus_minio-data` – niemals `down -v` verwenden.
+
+> Die obige `docker-compose.yml` ist nur für die lokale Entwicklung gedacht (feste
+> Standard-Passwörter, offene Ports 3306/9000/9001/8080) und darf nicht auf dem VPS laufen.
