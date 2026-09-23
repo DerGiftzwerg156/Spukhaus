@@ -2,11 +2,11 @@
 
 ## Nur Infrastruktur (lokale Backend-/Frontend-Entwicklung)
 
-Startet MariaDB und MinIO (inkl. automatischer Bucket-Anlage) für die lokale Entwicklung mit
+Startet MariaDB und MinIO für die lokale Entwicklung mit
 `./mvnw spring-boot:run` / `npm start` (`dev`-Profil):
 
 ```bash
-docker compose -f Tools/Docker/docker-compose.yml up -d mariadb minio minio-init
+docker compose -f Tools/Docker/docker-compose.yml up -d mariadb minio
 ```
 
 | Dienst  | Port(s)     | Zugangsdaten                          |
