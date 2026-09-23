@@ -45,7 +45,7 @@ Spukhaus/
 
 ```bash
 # 1. Infrastruktur (MariaDB + MinIO) starten
-docker compose -f Tools/Docker/docker-compose.yml up -d mariadb minio minio-init
+docker compose -f Tools/Docker/docker-compose.yml up -d mariadb minio
 
 # 2. Backend starten (Profil "dev")
 #    Ohne ein initiales TechAdmin-Passwort kann sich niemand anmelden!
@@ -81,7 +81,7 @@ JWT_SECRET='<mind-32-zeichen>' BOOTSTRAP_TECH_ADMIN_PASSWORD='<ein-sicheres-pass
   docker compose -f Tools/Docker/docker-compose.yml up -d --build
 ```
 
-Startet MariaDB, MinIO (inkl. automatischer Bucket-Anlage), Backend und Frontend zusammen. Frontend: http://localhost:8081, Backend: http://localhost:8080.
+Startet MariaDB, MinIO, Backend und Frontend zusammen. Frontend: http://localhost:8081, Backend: http://localhost:8080.
 
 Für das Produktions-Deployment auf dem VPS (https://spukhaus.nexacode.de, hinter einem gemeinsamen Reverse-Proxy) gibt es `Tools/Docker/docker-compose.prod.yml`, siehe [Tools/Docker/README.md](Tools/Docker/README.md#produktion-vps-httpsspukhausnexacodede).
 
