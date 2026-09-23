@@ -1,0 +1,94 @@
+# Produktions-Deployment von Spukhaus (https://spukhaus.nexacode.de).
+#
+# Läuft hinter dem gemeinsamen Reverse-Proxy (Caddy) auf dem VPS, der TLS
+# terminiert und spukhaus.nexacode.de an den Frontend-Container weiterleitet.
+# Es werden KEINE Host-Ports geöffnet – MariaDB, MinIO und Backend sind nur
+# im internen Docker-Netzwerk erreichbar, das Frontend zusätzlich im
+# externen Netzwerk "web-proxy".
+#
+# Zugangsdaten kommen aus Tools/Docker/.env (Vorlage: .env.example).
+# Start: docker compose -f Tools/Docker/docker-compose.prod.yml --env-file Tools/Docker/.env up -d --build
+name: spukhaus
+
+services:
+  mariadb:
+    image: mariadb:11
+    container_name: spukhaus-mariadb
+    restart: unless-stopped
+    environment:
+      MARIADB_DATABASE: spukhaus
+      MARIADB_USER: spukhaus
+      MARIADB_PASSWORD: ${DB_PASSWORD:?DB_PASSWORD fehlt in Tools/Docker/.env}
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:?DB_ROOT_PASSWORD fehlt in Tools/Docker/.env}
+    volumes:
+      - mariadb-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "healthcheck.sh", "--connect", "--innodb_initialized"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  minio:
+    image: minio/minio:latest
+    container_name: spukhaus-minio
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ACCESS_KEY:?MINIO_ACCESS_KEY fehlt in Tools/Docker/.env}
+      MINIO_ROOT_PASSWORD: ${MINIO_SECRET_KEY:?MINIO_SECRET_KEY fehlt in Tools/Docker/.env}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ../../backend
+    image: spukhaus-backend:latest
+    container_name: spukhaus-backend
+    restart: unless-stopped
+    depends_on:
+      mariadb:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      DB_URL: jdbc:mariadb://mariadb:3306/spukhaus
+      DB_USERNAME: spukhaus
+      DB_PASSWORD: ${DB_PASSWORD}
+      MINIO_URL: http://minio:9000
+      MINIO_ACCESS_KEY: ${MINIO_ACCESS_KEY}
+      MINIO_SECRET_KEY: ${MINIO_SECRET_KEY}
+      MINIO_BUCKET: spukhaus-designs
+      JWT_SECRET: ${JWT_SECRET:?JWT_SECRET fehlt in Tools/Docker/.env}
+      BOOTSTRAP_TECH_ADMIN_USERNAME: ${BOOTSTRAP_TECH_ADMIN_USERNAME:-techadmin}
+      BOOTSTRAP_TECH_ADMIN_PASSWORD: ${BOOTSTRAP_TECH_ADMIN_PASSWORD:?BOOTSTRAP_TECH_ADMIN_PASSWORD fehlt in Tools/Docker/.env}
+      SPUKHAUS_CORS_ALLOWED_ORIGINS: https://spukhaus.nexacode.de
+
+  frontend:
+    build:
+      context: ../../frontend
+    image: spukhaus-frontend:latest
+    container_name: spukhaus-frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    expose:
+      - "80"
+    networks:
+      default:
+      web-proxy:
+        aliases:
+          - spukhaus-web
+
+volumes:
+  mariadb-data:
+  minio-data:
+
+networks:
+  web-proxy:
+    external: true
